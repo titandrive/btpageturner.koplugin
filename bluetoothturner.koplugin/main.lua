@@ -8,45 +8,72 @@ local BluetoothTurner = InputContainer:extend{
     is_doc_only = true,
 }
 
+-- { id, label, event, arg (optional) }
+-- arg=true means pass true; arg=number means pass that number
 local ACTIONS = {
-    { id = "next_page",     label = "Next Page"         },
-    { id = "prev_page",     label = "Previous Page"     },
-    { id = "night_mode",    label = "Night Mode"        },
-    { id = "frontlight",    label = "Brightness"        },
-    { id = "toc",           label = "Table of Contents" },
-    { id = "bookmarks",     label = "Bookmarks"         },
-    { id = "font_increase", label = "Increase Font"     },
-    { id = "font_decrease", label = "Decrease Font"     },
-    { id = "add_bookmark",  label = "Add Bookmark"      },
-    { id = "wifi_toggle",   label = "Toggle Wi-Fi"      },
-    { id = "none",          label = "None"              },
+    -- Navigation
+    { id = "next_page",          label = "Next Page",                 event = "GotoViewRel",              arg = 1    },
+    { id = "prev_page",          label = "Previous Page",             event = "GotoViewRel",              arg = -1   },
+    { id = "next_chapter",       label = "Next Chapter",              event = "GotoNextChapter"                      },
+    { id = "prev_chapter",       label = "Previous Chapter",          event = "GotoPrevChapter"                      },
+    { id = "first_page",         label = "First Page",                event = "GoToBeginning"                        },
+    { id = "last_page",          label = "Last Page",                 event = "GoToEnd"                              },
+    { id = "go_to",              label = "Go to Page",                event = "ShowGotoDialog"                       },
+    { id = "skim",               label = "Skim Document",             event = "ShowSkimtoDialog"                     },
+    { id = "random_page",        label = "Random Page",               event = "GoToRandomPage"                       },
+    { id = "back",               label = "Back",                      event = "Back"                                 },
+    { id = "prev_location",      label = "Previous Location",         event = "GoBackLink",               arg = true },
+    { id = "next_location",      label = "Next Location",             event = "GoForwardLink",            arg = true },
+    -- Bookmarks
+    { id = "toggle_bookmark",    label = "Toggle Bookmark",           event = "ToggleBookmark"                       },
+    { id = "bookmarks",          label = "Bookmarks",                 event = "ShowBookmark"                         },
+    { id = "bookmark_search",    label = "Bookmark Search",           event = "SearchBookmark"                       },
+    { id = "prev_bookmark",      label = "Previous Bookmark",         event = "GotoPreviousBookmarkFromPage"         },
+    { id = "next_bookmark",      label = "Next Bookmark",             event = "GotoNextBookmarkFromPage"             },
+    -- Display
+    { id = "night_mode",         label = "Toggle Night Mode",         event = "ToggleNightMode"                      },
+    { id = "font_increase",      label = "Increase Font Size",        event = "IncreaseFontSize",         arg = 1    },
+    { id = "font_decrease",      label = "Decrease Font Size",        event = "DecreaseFontSize",         arg = 1    },
+    { id = "frontlight",         label = "Frontlight Dialog",         event = "ShowFlDialog"                         },
+    { id = "toggle_frontlight",  label = "Toggle Frontlight",         event = "ToggleFrontlight"                     },
+    { id = "toggle_status_bar",  label = "Toggle Status Bar",         event = "ToggleFooterMode"                     },
+    { id = "full_refresh",       label = "Full Screen Refresh",       event = "FullRefresh"                          },
+    -- Reader tools
+    { id = "toc",                label = "Table of Contents",         event = "ShowToc"                              },
+    { id = "show_menu",          label = "Show Menu",                 event = "ShowMenu"                             },
+    { id = "show_config_menu",   label = "Show Bottom Menu",          event = "ShowConfigMenu"                       },
+    { id = "fulltext_search",    label = "Fulltext Search",           event = "ShowFulltextSearchInput"              },
+    { id = "book_status",        label = "Book Status",               event = "ShowBookStatus"                       },
+    { id = "book_info",          label = "Book Information",          event = "ShowBookInfo"                         },
+    { id = "book_description",   label = "Book Description",          event = "ShowBookDescription"                  },
+    { id = "book_cover",         label = "Book Cover",                event = "ShowBookCover"                        },
+    { id = "translate_page",     label = "Translate Page",            event = "TranslateCurrentPage"                 },
+    { id = "toggle_style_tweaks",label = "Toggle Style Tweaks",       event = "ToggleStyleTweaks"                    },
+    { id = "screenshot",         label = "Screenshot",                event = "Screenshot"                           },
+    -- Library
+    { id = "filemanager",        label = "File Browser",              event = "Home"                                 },
+    { id = "history",            label = "History",                   event = "ShowHist"                             },
+    { id = "favorites",          label = "Favorites",                 event = "ShowColl"                             },
+    { id = "collections",        label = "Collections",               event = "ShowCollList"                         },
+    { id = "open_previous",      label = "Open Previous Document",    event = "OpenLastDoc"                          },
+    { id = "dictionary_lookup",  label = "Dictionary Lookup",         event = "ShowDictionaryLookup"                 },
+    { id = "wikipedia_lookup",   label = "Wikipedia Lookup",          event = "ShowWikipediaLookup"                  },
+    -- Device
+    { id = "wifi_toggle",        label = "Toggle Wi-Fi",              event = "ToggleWifi"                           },
+    { id = "suspend",            label = "Sleep",                     event = "RequestSuspend"                       },
+    { id = "none",               label = "None"                                                                      },
 }
 
 local ACTIONS_BY_ID = {}
 for _, a in ipairs(ACTIONS) do ACTIONS_BY_ID[a.id] = a end
 
 local function executeAction(action_id, ui)
-    if action_id == "next_page" then
-        ui:handleEvent(Event:new("GotoViewRel", 1))
-    elseif action_id == "prev_page" then
-        ui:handleEvent(Event:new("GotoViewRel", -1))
-    elseif action_id == "night_mode" then
-        UIManager:broadcastEvent(Event:new("ToggleNightMode"))
-    elseif action_id == "frontlight" then
-        UIManager:broadcastEvent(Event:new("ShowFlDialog"))
-    elseif action_id == "toc" then
-        ui:handleEvent(Event:new("ShowToc"))
-    elseif action_id == "bookmarks" then
-        ui:handleEvent(Event:new("ShowBookmarkList"))
-    elseif action_id == "font_increase" then
-        ui:handleEvent(Event:new("IncreaseFontSize"))
-    elseif action_id == "font_decrease" then
-        ui:handleEvent(Event:new("DecreaseFontSize"))
-    elseif action_id == "add_bookmark" then
-        ui:handleEvent(Event:new("AddBookmark"))
-    elseif action_id == "wifi_toggle" then
-        UIManager:broadcastEvent(Event:new("ToggleWifi"))
-    end
+    local action = ACTIONS_BY_ID[action_id]
+    if not action or not action.event then return end
+    local ev = action.arg ~= nil
+        and Event:new(action.event, action.arg)
+        or  Event:new(action.event)
+    UIManager:broadcastEvent(ev)
 end
 
 local DEFAULT_BINDINGS = {
