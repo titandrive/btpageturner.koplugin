@@ -156,7 +156,7 @@ end
 function BluetoothTurner:addToMainMenu(menu_items)
     menu_items.bluetooth_turner = {
         sorting_hint = "tools",
-        text = "Bluetooth Page Turner",
+        text = "Configure Bluetooth Controls",
         callback = function() self:showSettings() end,
     }
 end
@@ -168,6 +168,9 @@ function BluetoothTurner:showSettings()
 
     local sw = Device.screen:getWidth()
     local sh = Device.screen:getHeight()
+    local col_key = math.floor(sw * 0.44)
+    local col_act = math.floor(sw * 0.44)
+    local col_del = sw - col_key - col_act
 
     local dialog
 
@@ -232,6 +235,7 @@ function BluetoothTurner:showSettings()
         buttons[#buttons + 1] = {
             {
                 text = keycodeLabel(binding.keycode),
+                width = col_key,
                 callback = function()
                     UIManager:close(dialog)
                     startCapture(idx)
@@ -239,6 +243,7 @@ function BluetoothTurner:showSettings()
             },
             {
                 text = action_entry and action_entry.label or "?",
+                width = col_act,
                 callback = function()
                     UIManager:close(dialog)
                     showActionPicker(idx)
@@ -246,6 +251,7 @@ function BluetoothTurner:showSettings()
             },
             {
                 text = "×",
+                width = col_del,
                 callback = function()
                     table.remove(self._bindings, idx)
                     saveBindings(self._bindings)
@@ -272,7 +278,8 @@ function BluetoothTurner:showSettings()
     }
 
     dialog = ButtonDialogTitle:new{
-        title = "Bluetooth Page Turner",
+        title = "Configure Bluetooth Controls",
+        title_align = "center",
         buttons = buttons,
         width = sw,
     }
