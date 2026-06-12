@@ -68,16 +68,33 @@ end
 -- Gamepad D-pad hat axis support.
 local _cdef_ok = pcall(ffi.cdef, [[
     float AMotionEvent_getAxisValue(const void* motion_event, int axis, unsigned int pointer_index);
+    int AInputEvent_getSource(const void* event);
 ]])
 dbg("cdef ok=" .. tostring(_cdef_ok))
 
 local hat_x, hat_y = 0, 0
 
-local _hat_calls = 0
+local _logged_joystick = false
 local function handleHatAxes(motion_event)
     -- AMOTION_EVENT_AXIS_HAT_X = 15, AMOTION_EVENT_AXIS_HAT_Y = 16
-    _hat_calls = _hat_calls + 1
-    if _hat_calls <= 3 then dbg("hat call #" .. _hat_calls) end
+    -- Check if this is a joystick/gamepad event (source & AINPUT_SOURCE_JOYSTICK)
+    local src = tonumber(android.lib.AInputEvent_getSource(motion_event)) or 0
+    local is_joystick = bit.band(src, 0x01000010) ~= 0
+    if is_joystick or not _logged_joystick then
+        if not _logged_joystick then
+            dbg("first motion src=" .. src)
+            _logged_joystick = true
+        end
+        if is_joystick then
+            dbg("joystick src=" .. src)
+            for ax = 0, 23 do
+                local v = tonumber(android.lib.AMotionEvent_getAxisValue(motion_event, ax, 0)) or 0
+                if math.abs(v) > 0.01 then
+                    dbg("  axis " .. ax .. " = " .. v)
+                end
+            end
+        end
+    end
     local timev = genInputTimeval(android.lib.AMotionEvent_getEventTime(motion_event))
     local nx = tonumber(android.lib.AMotionEvent_getAxisValue(motion_event, 15, 0)) or 0
     local ny = tonumber(android.lib.AMotionEvent_getAxisValue(motion_event, 16, 0)) or 0
