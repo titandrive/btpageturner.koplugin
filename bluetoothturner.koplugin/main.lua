@@ -80,10 +80,6 @@ local DEFAULT_BINDINGS = {
     { keycode = 85, action = "next_page"  },
     { keycode = 87, action = "prev_page"  },
     { keycode = 88, action = "night_mode" },
-    { keycode = 22, action = "next_page"  },
-    { keycode = 21, action = "prev_page"  },
-    { keycode = 20, action = "next_page"  },
-    { keycode = 19, action = "prev_page"  },
 }
 
 local SLOT = "BTurner_"
@@ -91,19 +87,17 @@ local SLOT = "BTurner_"
 local function loadBindings()
     local saved = G_reader_settings:readSetting("bt_turner_bindings")
     if saved then
-        local has_dpad = false
-        for _, b in ipairs(saved) do
-            if b.keycode and b.keycode >= 19 and b.keycode <= 22 then
-                has_dpad = true
-                break
+        -- One-time cleanup: remove D-pad rows that were auto-added in a previous version
+        if not G_reader_settings:readSetting("bt_turner_dpad_cleaned") then
+            local cleaned = {}
+            for _, b in ipairs(saved) do
+                if not (b.keycode and b.keycode >= 19 and b.keycode <= 22) then
+                    cleaned[#cleaned + 1] = b
+                end
             end
-        end
-        if not has_dpad then
-            saved[#saved + 1] = { keycode = 22, action = "next_page" }
-            saved[#saved + 1] = { keycode = 21, action = "prev_page" }
-            saved[#saved + 1] = { keycode = 20, action = "next_page" }
-            saved[#saved + 1] = { keycode = 19, action = "prev_page" }
-            G_reader_settings:saveSetting("bt_turner_bindings", saved)
+            G_reader_settings:saveSetting("bt_turner_bindings", cleaned)
+            G_reader_settings:saveSetting("bt_turner_dpad_cleaned", true)
+            return cleaned
         end
         return saved
     end
