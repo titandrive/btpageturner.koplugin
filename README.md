@@ -1,6 +1,4 @@
-# bluetoothconfigurator.koplugin
-
-**Bluetooth Configurator - A KOReader plugin for Android to configure page turners**
+# Bluetooth Configurator - A KOReader plugin for Android to configure page turners
 
 
 ## **⚠ BETA — ANDROID ONLY**
