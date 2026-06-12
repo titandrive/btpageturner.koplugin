@@ -128,11 +128,13 @@ for i = 1, 16 do
 end
 
 local KEY_NAMES = {
-    [85] = "Play/Pause", [86] = "Pause",       [87] = "Next Track",
-    [88] = "Prev Track", [89] = "Rewind",       [90] = "Fast Fwd",
-    [91] = "Mute",       [92] = "Page Up",      [93] = "Page Down",
-    [96] = "Button A",   [97] = "Button B",     [99] = "Button X",
-    [100] = "Button Y",  [102] = "L1",          [103] = "R1",
+    [19]  = "D-Pad Up",   [20]  = "D-Pad Down", [21] = "D-Pad Left",
+    [22]  = "D-Pad Right",[23]  = "D-Pad Center",
+    [85]  = "Play/Pause", [86]  = "Pause",       [87] = "Next Track",
+    [88]  = "Prev Track", [89]  = "Rewind",       [90] = "Fast Fwd",
+    [91]  = "Mute",       [92]  = "Page Up",      [93] = "Page Down",
+    [96]  = "Button A",   [97]  = "Button B",     [99] = "Button X",
+    [100] = "Button Y",   [102] = "L1",           [103] = "R1",
 }
 
 local function keycodeLabel(code)
@@ -151,6 +153,10 @@ function BluetoothTurner:init()
     self._bindings = loadBindings()
     applyBindings(self)
     self.ui.menu:registerToMainMenu(self)
+end
+
+function BluetoothTurner:onReaderReady()
+    applyBindings(self)
 end
 
 function BluetoothTurner:addToMainMenu(menu_items)
