@@ -16,6 +16,8 @@ local input = {
     fakeTapInput = function() end,
     -- Tell front that we're a custom imp with no concept of paths/fd
     is_ffi = true,
+    -- Set to function(code) to capture the next key down event
+    capture_callback = nil,
 }
 
 local inputQueue = {}
@@ -173,6 +175,12 @@ end
 local function keyEventHandler(key_event)
     local code = android.lib.AKeyEvent_getKeyCode(key_event)
     local action = android.lib.AKeyEvent_getAction(key_event)
+    if input.capture_callback and action == C.AKEY_EVENT_ACTION_DOWN then
+        local cb = input.capture_callback
+        input.capture_callback = nil
+        cb(tonumber(code))
+        return 1
+    end
     if code == C.AKEYCODE_VOLUME_UP
     or code == C.AKEYCODE_VOLUME_DOWN then
         if android.getVolumeKeysIgnored() then
