@@ -5,7 +5,6 @@ local Device = require("device")
 
 local BluetoothTurner = InputContainer:extend{
     name = "bluetoothconfigurator",
-    is_doc_only = true,
 }
 
 -- { id, label, event, arg (optional) }
@@ -159,13 +158,18 @@ local function keycodeLabel(code)
     return name and (name .. " (" .. code .. ")") or ("Key " .. code)
 end
 
+local _input_patched = false
+
 function BluetoothTurner:init()
-    pcall(function()
-        if Device:isAndroid() then
-            local patched = dofile(self.path .. "/input_android_patched.lua")
-            Device.input.input = patched
-        end
-    end)
+    if not _input_patched then
+        pcall(function()
+            if Device:isAndroid() then
+                local patched = dofile(self.path .. "/input_android_patched.lua")
+                Device.input.input = patched
+            end
+        end)
+        _input_patched = true
+    end
     self._bindings = loadBindings()
     applyBindings(self)
     self.ui.menu:registerToMainMenu(self)
