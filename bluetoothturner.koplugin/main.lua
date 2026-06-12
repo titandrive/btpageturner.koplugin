@@ -80,13 +80,33 @@ local DEFAULT_BINDINGS = {
     { keycode = 85, action = "next_page"  },
     { keycode = 87, action = "prev_page"  },
     { keycode = 88, action = "night_mode" },
+    { keycode = 22, action = "next_page"  },
+    { keycode = 21, action = "prev_page"  },
+    { keycode = 20, action = "next_page"  },
+    { keycode = 19, action = "prev_page"  },
 }
 
 local SLOT = "BTurner_"
 
 local function loadBindings()
     local saved = G_reader_settings:readSetting("bt_turner_bindings")
-    if saved then return saved end
+    if saved then
+        local has_dpad = false
+        for _, b in ipairs(saved) do
+            if b.keycode and b.keycode >= 19 and b.keycode <= 22 then
+                has_dpad = true
+                break
+            end
+        end
+        if not has_dpad then
+            saved[#saved + 1] = { keycode = 22, action = "next_page" }
+            saved[#saved + 1] = { keycode = 21, action = "prev_page" }
+            saved[#saved + 1] = { keycode = 20, action = "next_page" }
+            saved[#saved + 1] = { keycode = 19, action = "prev_page" }
+            G_reader_settings:saveSetting("bt_turner_bindings", saved)
+        end
+        return saved
+    end
     local copy = {}
     for _, b in ipairs(DEFAULT_BINDINGS) do
         copy[#copy + 1] = { keycode = b.keycode, action = b.action }

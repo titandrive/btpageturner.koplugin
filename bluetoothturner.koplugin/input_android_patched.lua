@@ -60,7 +60,7 @@ end
 -- AMotionEvent_getAxisValue is not declared in KOReader's FFI by default,
 -- so declare it here. pcall guards against "already defined" errors.
 pcall(ffi.cdef, [[
-    float AMotionEvent_getAxisValue(const AInputEvent* motion_event, int32_t axis, size_t pointer_index);
+    float AMotionEvent_getAxisValue(const void* motion_event, int axis, unsigned int pointer_index);
 ]])
 
 local hat_x, hat_y = 0, 0
