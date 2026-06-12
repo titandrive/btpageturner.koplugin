@@ -72,15 +72,37 @@ local function handleHatAxes(motion_event)
     local ny = tonumber(android.lib.AMotionEvent_getAxisValue(motion_event, 16, 0)) or 0
     if math.abs(nx) < 0.5 then nx = 0 elseif nx > 0 then nx = 1 else nx = -1 end
     if math.abs(ny) < 0.5 then ny = 0 elseif ny > 0 then ny = 1 else ny = -1 end
+    local changed = false
     if nx ~= hat_x then
         if hat_x ~= 0 then genEmuEvent(C.EV_KEY, hat_x < 0 and 21 or 22, 0, timev) end
-        if nx ~= 0 then genEmuEvent(C.EV_KEY, nx < 0 and 21 or 22, 1, timev) end
+        if nx ~= 0 then
+            local code = nx < 0 and 21 or 22
+            genEmuEvent(C.EV_KEY, code, 1, timev)
+            if input.capture_callback then
+                local cb = input.capture_callback
+                input.capture_callback = nil
+                cb(code)
+            end
+        end
         hat_x = nx
+        changed = true
     end
     if ny ~= hat_y then
         if hat_y ~= 0 then genEmuEvent(C.EV_KEY, hat_y < 0 and 19 or 20, 0, timev) end
-        if ny ~= 0 then genEmuEvent(C.EV_KEY, ny < 0 and 19 or 20, 1, timev) end
+        if ny ~= 0 then
+            local code = ny < 0 and 19 or 20
+            genEmuEvent(C.EV_KEY, code, 1, timev)
+            if input.capture_callback then
+                local cb = input.capture_callback
+                input.capture_callback = nil
+                cb(code)
+            end
+        end
         hat_y = ny
+        changed = true
+    end
+    if changed then
+        genEmuEvent(C.EV_SYN, C.SYN_REPORT, 0, timev)
     end
 end
 
