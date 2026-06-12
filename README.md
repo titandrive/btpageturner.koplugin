@@ -13,7 +13,7 @@ A KOReader plugin that lets you easily and intuitively map Bluetooth controller 
 
 It has been verified to work with both [8BitDo Micro](https://www.8bitdo.com/micro/) as well as a few generic page turners such as [this](https://www.amazon.com/dp/B0B6RBHJFY?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_3) one, although it should support any similar controller. 
 
-![Demo](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExeWZ1ODZ0YnNiNzc4bTI0bG00a2dhbHJnY21sZjcyOXFldTEzMGxicCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KSSBkeUJxSIusUU1j1/giphy.gif)
+<img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExeWZ1ODZ0YnNiNzc4bTI0bG00a2dhbHJnY21sZjcyOXFldTEzMGxicCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KSSBkeUJxSIusUU1j1/giphy.gif" width="480">
 <img width="250" alt="Screenshot_20260611_235123_blurred" src="https://github.com/user-attachments/assets/f8879974-98c3-4f29-898e-1293f69e20a4" />
 <img width="250" alt="Screenshot_20260611_235129" src="https://github.com/user-attachments/assets/9807d1db-5434-4303-b093-fbe760377932" />
 
