@@ -165,7 +165,7 @@ end
 --       AMOTION_EVENT_ACTION_DOWN & AMOTION_EVENT_ACTION_UP, so, use the source, Luke! c.f., TouchInputMapper::dispatchMotion @
 -- https://android.googlesource.com/platform//frameworks/native/+/master/services/inputflinger/reader/mapper/TouchInputMapper.cpp
 local function motionEventHandler(motion_event)
-    handleHatAxes(motion_event)
+    pcall(handleHatAxes, motion_event)
     if android.isTouchscreenIgnored() then
         return
     end
