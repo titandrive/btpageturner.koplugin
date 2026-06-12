@@ -216,6 +216,8 @@ function BluetoothTurner:showSettings()
                 text = action.label,
                 callback = function()
                     UIManager:close(picker)
+                    local f = io.open("/sdcard/koreader/btdebug.txt", "a")
+                    if f then f:write("SETBIND row="..row_index.." id="..id.."\n") f:close() end
                     self._bindings[row_index].action = id
                     saveBindings(self._bindings)
                     applyBindings(self)
