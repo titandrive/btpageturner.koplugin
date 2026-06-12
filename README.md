@@ -1,5 +1,7 @@
 # bluetoothconfigurator.koplugin
 
+![Demo](demo.gif)
+
 ## **⚠ BETA — ANDROID ONLY**
 
 > **This plugin is in beta. Back up your KOReader directory before installing.**
