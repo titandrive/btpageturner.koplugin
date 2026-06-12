@@ -55,3 +55,11 @@ Actions are grouped into the following categories:
 - D-pad controllers are supported. The plugin maps joystick axis events (AXIS_X/AXIS_Y) to directional keycodes.
 - The plugin only appears in the menu when a book is open.
 - If the plugin disappears from the menu after a crash, re-enable it via **Plugins → Plugin Management**.
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+## AI Disclosure
+
+This plugin was developed with the assistance of [Claude Code](https://claude.ai/code) (Anthropic). All code was reviewed and tested by the author.
