@@ -2,7 +2,8 @@
 
 
 ## **⚠ BETA — ANDROID ONLY**
->This plugin is **Android** only. Have a Kobo? Try [this](https://github.com/onatbas/bluetooth.koplugin) plugin instead! 
+>This plugin is **Android** only. Have a Kobo? Try [this](https://github.com/onatbas/bluetooth.koplugin) plugin instead!
+>
 > **This plugin is in beta. Back up your KOReader directory before installing.**
 > It patches KOReader's input handler at runtime and may cause instability.
 
