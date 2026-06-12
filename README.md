@@ -7,7 +7,9 @@
 
 ---
 
-A KOReader plugin that lets you map Bluetooth page turner buttons to reader actions. Supports standard media keys as well as D-pad/joystick controllers.
+A KOReader plugin that lets you easily and intuitively map Bluetooth controller and page turner buttons to reader actions. No more messing with [keymapping](https://github.com/koreader/koreader/wiki/Android-tips-and-tricks#customize-keys) and config files. It supports standard media keys as well as D-pad/joystick controllers. 
+
+It has been verified to work with both [8BitDo Micro](https://www.8bitdo.com/micro/) as well as a few generic page turners such as [this](https://www.amazon.com/dp/B0B6RBHJFY?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_3) one, although it should support any similar controller. 
 
 ## Requirements
 
