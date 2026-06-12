@@ -56,21 +56,20 @@ local function genEmuEvent(evtype, code, value, timev, ts)
     table.insert(inputQueue, ev)
 end
 
--- Gamepad D-pad hat axis state (AXIS_HAT_X=15, AXIS_HAT_Y=16)
+-- Gamepad D-pad hat axis support.
+-- AMotionEvent_getAxisValue is not declared in KOReader's FFI by default,
+-- so declare it here. pcall guards against "already defined" errors.
+pcall(ffi.cdef, [[
+    float AMotionEvent_getAxisValue(const AInputEvent* motion_event, int32_t axis, size_t pointer_index);
+]])
+
 local hat_x, hat_y = 0, 0
-local _axis_fn_checked = false
-local _axis_fn_ok = false
 
 local function handleHatAxes(motion_event)
-    if not _axis_fn_checked then
-        _axis_fn_checked = true
-        _axis_fn_ok = pcall(android.lib.AMotionEvent_getAxisValue, motion_event, 15, 0)
-    end
-    if not _axis_fn_ok then return end
+    -- AMOTION_EVENT_AXIS_HAT_X = 15, AMOTION_EVENT_AXIS_HAT_Y = 16
     local timev = genInputTimeval(android.lib.AMotionEvent_getEventTime(motion_event))
     local nx = tonumber(android.lib.AMotionEvent_getAxisValue(motion_event, 15, 0)) or 0
     local ny = tonumber(android.lib.AMotionEvent_getAxisValue(motion_event, 16, 0)) or 0
-    -- threshold to avoid floating point noise
     if math.abs(nx) < 0.5 then nx = 0 elseif nx > 0 then nx = 1 else nx = -1 end
     if math.abs(ny) < 0.5 then ny = 0 elseif ny > 0 then ny = 1 else ny = -1 end
     if nx ~= hat_x then
