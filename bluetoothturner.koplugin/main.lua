@@ -162,27 +162,12 @@ function BluetoothTurner:addToMainMenu(menu_items)
 end
 
 function BluetoothTurner:showSettings()
-    local FrameContainer    = require("ui/widget/container/framecontainer")
-    local VerticalGroup     = require("ui/widget/verticalgroup")
-    local HorizontalGroup   = require("ui/widget/horizontalgroup")
-    local ScrollableContainer = require("ui/widget/scrollablecontainer")
-    local Button            = require("ui/widget/button")
-    local TextWidget        = require("ui/widget/textwidget")
-    local LineWidget        = require("ui/widget/linewidget")
-    local Font              = require("ui/font")
-    local Blitbuffer        = require("ffi/blitbuffer")
-    local Geom              = require("ui/geometry")
-    local Size              = require("ui/size")
-    local InfoMessage       = require("ui/widget/infomessage")
-    local Menu              = require("ui/widget/menu")
+    local ButtonDialogTitle = require("ui/widget/buttondialogtitle")
+    local InfoMessage = require("ui/widget/infomessage")
+    local Menu = require("ui/widget/menu")
 
     local sw = Device.screen:getWidth()
     local sh = Device.screen:getHeight()
-    local pad = Size.padding.large
-
-    local col_key = math.floor(sw * 0.42)
-    local col_act = math.floor(sw * 0.42)
-    local col_del = sw - col_key - col_act
 
     local dialog
 
@@ -240,31 +225,27 @@ function BluetoothTurner:showSettings()
         end
     end
 
-    -- Build binding rows
-    local binding_rows = VerticalGroup:new{ align = "left" }
+    local buttons = {}
     for i, binding in ipairs(self._bindings) do
         local idx = i
         local action_entry = ACTIONS_BY_ID[binding.action]
-        binding_rows[#binding_rows + 1] = HorizontalGroup:new{
-            Button:new{
+        buttons[#buttons + 1] = {
+            {
                 text = keycodeLabel(binding.keycode),
-                width = col_key,
                 callback = function()
                     UIManager:close(dialog)
                     startCapture(idx)
                 end,
             },
-            Button:new{
+            {
                 text = action_entry and action_entry.label or "?",
-                width = col_act,
                 callback = function()
                     UIManager:close(dialog)
                     showActionPicker(idx)
                 end,
             },
-            Button:new{
+            {
                 text = "×",
-                width = col_del,
                 callback = function()
                     table.remove(self._bindings, idx)
                     saveBindings(self._bindings)
@@ -275,60 +256,25 @@ function BluetoothTurner:showSettings()
         }
     end
 
-    local title_section = FrameContainer:new{
-        padding = pad,
-        bordersize = 0,
-        TextWidget:new{
-            text = "Bluetooth Page Turner",
-            face = Font:getFace("tfont", 22),
-            bold = true,
-        },
-    }
-
-    local bottom_section = HorizontalGroup:new{
-        Button:new{
+    buttons[#buttons + 1] = {
+        {
             text = "+ Add Binding",
-            width = math.floor(sw / 2),
             callback = function()
                 self._bindings[#self._bindings + 1] = { keycode = nil, action = "none" }
                 saveBindings(self._bindings)
                 refresh()
             end,
         },
-        Button:new{
+        {
             text = "Close",
-            width = math.floor(sw / 2),
             callback = function() UIManager:close(dialog) end,
         },
     }
 
-    local sep_h = Size.line.thick
-    local title_h  = title_section:getSize().h
-    local bottom_h = bottom_section:getSize().h
-    local scroll_h = sh - title_h - bottom_h - sep_h * 2
-
-    local scroll = ScrollableContainer:new{
-        dimen = Geom:new{ w = sw, h = scroll_h },
-        binding_rows,
-    }
-
-    dialog = FrameContainer:new{
-        bordersize = 0,
-        padding = 0,
-        background = Blitbuffer.COLOR_WHITE,
-        VerticalGroup:new{
-            title_section,
-            LineWidget:new{
-                dimen = Geom:new{ w = sw, h = sep_h },
-                background = Blitbuffer.gray(0.5),
-            },
-            scroll,
-            LineWidget:new{
-                dimen = Geom:new{ w = sw, h = sep_h },
-                background = Blitbuffer.gray(0.5),
-            },
-            bottom_section,
-        },
+    dialog = ButtonDialogTitle:new{
+        title = "Bluetooth Page Turner",
+        buttons = buttons,
+        width = sw,
     }
     UIManager:show(dialog)
 end
