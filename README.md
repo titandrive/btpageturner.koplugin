@@ -1,6 +1,5 @@
 # bluetoothconfigurator.koplugin
 
-![Demo](demo.gif)
 
 ## **⚠ BETA — ANDROID ONLY**
 
