@@ -56,49 +56,22 @@ local function genEmuEvent(evtype, code, value, timev, ts)
     table.insert(inputQueue, ev)
 end
 
--- Debug log — written to /sdcard/koreader/btdebug.txt
-local _dbg_file = io.open("/sdcard/koreader/btdebug.txt", "w")
-local function dbg(s)
-    if _dbg_file then
-        _dbg_file:write(s .. "\n")
-        _dbg_file:flush()
-    end
-end
-
--- Gamepad D-pad hat axis support.
-local _cdef_ok = pcall(ffi.cdef, [[
+-- Gamepad D-pad axis support.
+pcall(ffi.cdef, [[
     float AMotionEvent_getAxisValue(const void* motion_event, int axis, unsigned int pointer_index);
     int AInputEvent_getSource(const void* event);
 ]])
-dbg("cdef ok=" .. tostring(_cdef_ok))
 
 local hat_x, hat_y = 0, 0
 
-local _logged_joystick = false
 local function handleHatAxes(motion_event)
-    -- AMOTION_EVENT_AXIS_HAT_X = 15, AMOTION_EVENT_AXIS_HAT_Y = 16
-    -- Check if this is a joystick/gamepad event (source & AINPUT_SOURCE_JOYSTICK)
+    -- Only process joystick-source events (AINPUT_SOURCE_JOYSTICK = 0x01000010)
     local src = tonumber(android.lib.AInputEvent_getSource(motion_event)) or 0
-    local is_joystick = bit.band(src, 0x01000010) ~= 0
-    if is_joystick or not _logged_joystick then
-        if not _logged_joystick then
-            dbg("first motion src=" .. src)
-            _logged_joystick = true
-        end
-        if is_joystick then
-            dbg("joystick src=" .. src)
-            for ax = 0, 23 do
-                local v = tonumber(android.lib.AMotionEvent_getAxisValue(motion_event, ax, 0)) or 0
-                if math.abs(v) > 0.01 then
-                    dbg("  axis " .. ax .. " = " .. v)
-                end
-            end
-        end
-    end
+    if bit.band(src, 0x01000010) == 0 then return end
+    -- This device uses AXIS_X(0)/AXIS_Y(1) for D-pad, not the standard HAT_X(15)/HAT_Y(16)
     local timev = genInputTimeval(android.lib.AMotionEvent_getEventTime(motion_event))
-    local nx = tonumber(android.lib.AMotionEvent_getAxisValue(motion_event, 15, 0)) or 0
-    local ny = tonumber(android.lib.AMotionEvent_getAxisValue(motion_event, 16, 0)) or 0
-    if nx ~= 0 or ny ~= 0 then dbg("hat nx=" .. nx .. " ny=" .. ny) end
+    local nx = tonumber(android.lib.AMotionEvent_getAxisValue(motion_event, 0, 0)) or 0
+    local ny = tonumber(android.lib.AMotionEvent_getAxisValue(motion_event, 1, 0)) or 0
     if math.abs(nx) < 0.5 then nx = 0 elseif nx > 0 then nx = 1 else nx = -1 end
     if math.abs(ny) < 0.5 then ny = 0 elseif ny > 0 then ny = 1 else ny = -1 end
     local changed = false
@@ -255,7 +228,6 @@ end
 local function keyEventHandler(key_event)
     local code = android.lib.AKeyEvent_getKeyCode(key_event)
     local action = android.lib.AKeyEvent_getAction(key_event)
-    dbg("key code=" .. tonumber(code) .. " action=" .. tonumber(action))
     if input.capture_callback and action == C.AKEY_EVENT_ACTION_DOWN then
         local cb = input.capture_callback
         input.capture_callback = nil
