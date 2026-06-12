@@ -4,14 +4,14 @@ local UIManager = require("ui/uimanager")
 local Device = require("device")
 
 local BluetoothTurner = InputContainer:extend{
-    name = "bluetoothturner",
+    name = "bluetoothconfigurator",
     is_doc_only = true,
 }
 
 -- { id, label, event, arg (optional) }
 -- arg=true means pass true; arg=number means pass that number
 local ACTIONS = {
-    -- Navigation
+    { section = "Navigation" },
     { id = "next_page",          label = "Next Page",                 event = "GotoViewRel",              arg = 1    },
     { id = "prev_page",          label = "Previous Page",             event = "GotoViewRel",              arg = -1   },
     { id = "next_chapter",       label = "Next Chapter",              event = "GotoNextChapter"                      },
@@ -24,13 +24,13 @@ local ACTIONS = {
     { id = "back",               label = "Back",                      event = "Back"                                 },
     { id = "prev_location",      label = "Previous Location",         event = "GoBackLink",               arg = true },
     { id = "next_location",      label = "Next Location",             event = "GoForwardLink",            arg = true },
-    -- Bookmarks
+    { section = "Bookmarks" },
     { id = "toggle_bookmark",    label = "Toggle Bookmark",           event = "ToggleBookmark"                       },
     { id = "bookmarks",          label = "Bookmarks",                 event = "ShowBookmark"                         },
     { id = "bookmark_search",    label = "Bookmark Search",           event = "SearchBookmark"                       },
     { id = "prev_bookmark",      label = "Previous Bookmark",         event = "GotoPreviousBookmarkFromPage"         },
     { id = "next_bookmark",      label = "Next Bookmark",             event = "GotoNextBookmarkFromPage"             },
-    -- Display
+    { section = "Display" },
     { id = "night_mode",         label = "Toggle Night Mode",         event = "ToggleNightMode"                      },
     { id = "font_increase",      label = "Increase Font Size",        event = "IncreaseFontSize",         arg = 1    },
     { id = "font_decrease",      label = "Decrease Font Size",        event = "DecreaseFontSize",         arg = 1    },
@@ -38,7 +38,7 @@ local ACTIONS = {
     { id = "toggle_frontlight",  label = "Toggle Frontlight",         event = "ToggleFrontlight"                     },
     { id = "toggle_status_bar",  label = "Toggle Status Bar",         event = "ToggleFooterMode"                     },
     { id = "full_refresh",       label = "Full Screen Refresh",       event = "FullRefresh"                          },
-    -- Reader tools
+    { section = "Reader" },
     { id = "toc",                label = "Table of Contents",         event = "ShowToc"                              },
     { id = "show_menu",          label = "Show Menu",                 event = "ShowMenu"                             },
     { id = "show_config_menu",   label = "Show Bottom Menu",          event = "ShowConfigMenu"                       },
@@ -50,7 +50,7 @@ local ACTIONS = {
     { id = "translate_page",     label = "Translate Page",            event = "TranslateCurrentPage"                 },
     { id = "toggle_style_tweaks",label = "Toggle Style Tweaks",       event = "ToggleStyleTweaks"                    },
     { id = "screenshot",         label = "Screenshot",                event = "Screenshot"                           },
-    -- Library
+    { section = "Library" },
     { id = "filemanager",        label = "File Browser",              event = "Home"                                 },
     { id = "history",            label = "History",                   event = "ShowHist"                             },
     { id = "favorites",          label = "Favorites",                 event = "ShowColl"                             },
@@ -58,14 +58,16 @@ local ACTIONS = {
     { id = "open_previous",      label = "Open Previous Document",    event = "OpenLastDoc"                          },
     { id = "dictionary_lookup",  label = "Dictionary Lookup",         event = "ShowDictionaryLookup"                 },
     { id = "wikipedia_lookup",   label = "Wikipedia Lookup",          event = "ShowWikipediaLookup"                  },
-    -- Device
+    { section = "Device" },
     { id = "wifi_toggle",        label = "Toggle Wi-Fi",              event = "ToggleWifi"                           },
     { id = "suspend",            label = "Sleep",                     event = "RequestSuspend"                       },
     { id = "none",               label = "None"                                                                      },
 }
 
 local ACTIONS_BY_ID = {}
-for _, a in ipairs(ACTIONS) do ACTIONS_BY_ID[a.id] = a end
+for _, a in ipairs(ACTIONS) do
+    if a.id then ACTIONS_BY_ID[a.id] = a end
+end
 
 local function executeAction(action_id, ui)
     local action = ACTIONS_BY_ID[action_id]
@@ -85,18 +87,18 @@ local DEFAULT_BINDINGS = {
 local SLOT = "BTurner_"
 
 local function loadBindings()
-    local saved = G_reader_settings:readSetting("bt_turner_bindings")
+    local saved = G_reader_settings:readSetting("bt_configurator_bindings")
     if saved then
         -- One-time cleanup: remove D-pad rows that were auto-added in a previous version
-        if not G_reader_settings:readSetting("bt_turner_dpad_cleaned") then
+        if not G_reader_settings:readSetting("bt_configurator_dpad_cleaned") then
             local cleaned = {}
             for _, b in ipairs(saved) do
                 if not (b.keycode and b.keycode >= 19 and b.keycode <= 22) then
                     cleaned[#cleaned + 1] = b
                 end
             end
-            G_reader_settings:saveSetting("bt_turner_bindings", cleaned)
-            G_reader_settings:saveSetting("bt_turner_dpad_cleaned", true)
+            G_reader_settings:saveSetting("bt_configurator_bindings", cleaned)
+            G_reader_settings:saveSetting("bt_configurator_dpad_cleaned", true)
             return cleaned
         end
         return saved
@@ -109,7 +111,7 @@ local function loadBindings()
 end
 
 local function saveBindings(bindings)
-    G_reader_settings:saveSetting("bt_turner_bindings", bindings)
+    G_reader_settings:saveSetting("bt_configurator_bindings", bindings)
 end
 
 local function applyBindings(plugin)
@@ -174,7 +176,7 @@ function BluetoothTurner:onReaderReady()
 end
 
 function BluetoothTurner:addToMainMenu(menu_items)
-    menu_items.bluetooth_turner = {
+    menu_items.bluetooth_configurator = {
         sorting_hint = "tools",
         text = "Configure Bluetooth Controls",
         callback = function() self:showSettings() end,
@@ -203,17 +205,25 @@ function BluetoothTurner:showSettings()
         local items = {}
         local picker
         for _, action in ipairs(ACTIONS) do
-            local id = action.id
-            items[#items + 1] = {
-                text = action.label,
-                callback = function()
-                    UIManager:close(picker)
-                    self._bindings[row_index].action = id
-                    saveBindings(self._bindings)
-                    applyBindings(self)
-                    self:showSettings()
-                end,
-            }
+            if action.section then
+                items[#items + 1] = {
+                    text = "── " .. action.section .. " ──",
+                    dim = true,
+                    callback = function() end,
+                }
+            else
+                local id = action.id
+                items[#items + 1] = {
+                    text = action.label,
+                    callback = function()
+                        UIManager:close(picker)
+                        self._bindings[row_index].action = id
+                        saveBindings(self._bindings)
+                        applyBindings(self)
+                        self:showSettings()
+                    end,
+                }
+            end
         end
         picker = Menu:new{
             title = "Select Action",
