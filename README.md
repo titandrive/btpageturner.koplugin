@@ -8,7 +8,7 @@
 
 ---
 
-A KOReader plugin that lets you easily and intuitively map Bluetooth controller and page turner buttons to reader actions. Not only is this far easier then the reccomended way of usin [keymapping](https://github.com/koreader/koreader/wiki/Android-tips-and-tricks#customize-keys), but it provides for more controlls then keymapping allows. It supports standard media keys as well as D-pad/joystick controllers. 
+A KOReader plugin that lets you easily and intuitively map Bluetooth controller and page turner buttons to reader actions. Not only is this far easier then the reccomended way of using [keymapping](https://github.com/koreader/koreader/wiki/Android-tips-and-tricks#customize-keys), but it provides for more controlls then keymapping allows. It supports standard media keys as well as D-pad/joystick controllers. 
 
 It has been verified to work with both [8BitDo Micro](https://www.8bitdo.com/micro/) as well as a few generic page turners such as [this](https://www.amazon.com/dp/B0B6RBHJFY?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_3) one, although it should support any similar controller. 
 
@@ -31,10 +31,11 @@ It has been verified to work with both [8BitDo Micro](https://www.8bitdo.com/mic
 
 Open a book and access **Plugins → Configure Bluetooth Controls** to set up your bindings.
 
-- Tap **Add Button** to create a new binding
-- Press the button on your page turner to capture its keycode
+- Tap **Add Binding** to create a new binding
+- Tap "tap to set...". The plugin will begin listening for your controller.
+- Press the desired button you want to pair. The plugin will capture its keycode. 
 - Select the action you want it to trigger
-- Use the trash icon to remove a binding
+- Use the "x" icon to remove a binding
 
 Bindings are saved automatically and persist across sessions.
 
