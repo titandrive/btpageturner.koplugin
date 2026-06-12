@@ -56,6 +56,35 @@ local function genEmuEvent(evtype, code, value, timev, ts)
     table.insert(inputQueue, ev)
 end
 
+-- Gamepad D-pad hat axis state (AXIS_HAT_X=15, AXIS_HAT_Y=16)
+local hat_x, hat_y = 0, 0
+local _axis_fn_checked = false
+local _axis_fn_ok = false
+
+local function handleHatAxes(motion_event)
+    if not _axis_fn_checked then
+        _axis_fn_checked = true
+        _axis_fn_ok = pcall(android.lib.AMotionEvent_getAxisValue, motion_event, 15, 0)
+    end
+    if not _axis_fn_ok then return end
+    local timev = genInputTimeval(android.lib.AMotionEvent_getEventTime(motion_event))
+    local nx = tonumber(android.lib.AMotionEvent_getAxisValue(motion_event, 15, 0)) or 0
+    local ny = tonumber(android.lib.AMotionEvent_getAxisValue(motion_event, 16, 0)) or 0
+    -- threshold to avoid floating point noise
+    if math.abs(nx) < 0.5 then nx = 0 elseif nx > 0 then nx = 1 else nx = -1 end
+    if math.abs(ny) < 0.5 then ny = 0 elseif ny > 0 then ny = 1 else ny = -1 end
+    if nx ~= hat_x then
+        if hat_x ~= 0 then genEmuEvent(C.EV_KEY, hat_x < 0 and 21 or 22, 0, timev) end
+        if nx ~= 0 then genEmuEvent(C.EV_KEY, nx < 0 and 21 or 22, 1, timev) end
+        hat_x = nx
+    end
+    if ny ~= hat_y then
+        if hat_y ~= 0 then genEmuEvent(C.EV_KEY, hat_y < 0 and 19 or 20, 0, timev) end
+        if ny ~= 0 then genEmuEvent(C.EV_KEY, ny < 0 and 19 or 20, 1, timev) end
+        hat_y = ny
+    end
+end
+
 -- Keep track of all the active pointers in the current gesture.
 -- *hash*, key is a pointer *id* (i.e., its slot number),
 -- value is a boolean, denoting whether the pointer is currently down (e.g., in contact) (true), up (false) or inactive (nil).
@@ -115,6 +144,7 @@ end
 --       AMOTION_EVENT_ACTION_DOWN & AMOTION_EVENT_ACTION_UP, so, use the source, Luke! c.f., TouchInputMapper::dispatchMotion @
 -- https://android.googlesource.com/platform//frameworks/native/+/master/services/inputflinger/reader/mapper/TouchInputMapper.cpp
 local function motionEventHandler(motion_event)
+    handleHatAxes(motion_event)
     if android.isTouchscreenIgnored() then
         return
     end
