@@ -56,20 +56,32 @@ local function genEmuEvent(evtype, code, value, timev, ts)
     table.insert(inputQueue, ev)
 end
 
+-- Debug log — written to /sdcard/koreader/btdebug.txt
+local _dbg_file = io.open("/sdcard/koreader/btdebug.txt", "w")
+local function dbg(s)
+    if _dbg_file then
+        _dbg_file:write(s .. "\n")
+        _dbg_file:flush()
+    end
+end
+
 -- Gamepad D-pad hat axis support.
--- AMotionEvent_getAxisValue is not declared in KOReader's FFI by default,
--- so declare it here. pcall guards against "already defined" errors.
-pcall(ffi.cdef, [[
+local _cdef_ok = pcall(ffi.cdef, [[
     float AMotionEvent_getAxisValue(const void* motion_event, int axis, unsigned int pointer_index);
 ]])
+dbg("cdef ok=" .. tostring(_cdef_ok))
 
 local hat_x, hat_y = 0, 0
 
+local _hat_calls = 0
 local function handleHatAxes(motion_event)
     -- AMOTION_EVENT_AXIS_HAT_X = 15, AMOTION_EVENT_AXIS_HAT_Y = 16
+    _hat_calls = _hat_calls + 1
+    if _hat_calls <= 3 then dbg("hat call #" .. _hat_calls) end
     local timev = genInputTimeval(android.lib.AMotionEvent_getEventTime(motion_event))
     local nx = tonumber(android.lib.AMotionEvent_getAxisValue(motion_event, 15, 0)) or 0
     local ny = tonumber(android.lib.AMotionEvent_getAxisValue(motion_event, 16, 0)) or 0
+    if nx ~= 0 or ny ~= 0 then dbg("hat nx=" .. nx .. " ny=" .. ny) end
     if math.abs(nx) < 0.5 then nx = 0 elseif nx > 0 then nx = 1 else nx = -1 end
     if math.abs(ny) < 0.5 then ny = 0 elseif ny > 0 then ny = 1 else ny = -1 end
     local changed = false
@@ -226,6 +238,7 @@ end
 local function keyEventHandler(key_event)
     local code = android.lib.AKeyEvent_getKeyCode(key_event)
     local action = android.lib.AKeyEvent_getAction(key_event)
+    dbg("key code=" .. tonumber(code) .. " action=" .. tonumber(action))
     if input.capture_callback and action == C.AKEY_EVENT_ACTION_DOWN then
         local cb = input.capture_callback
         input.capture_callback = nil
