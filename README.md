@@ -55,7 +55,9 @@ Actions are grouped into the following categories:
 
 - D-pad controllers are supported. The plugin maps joystick axis events (AXIS_X/AXIS_Y) to directional keycodes.
 - The plugin only appears in the menu when a book is open.
-- If the plugin disappears from the menu after a crash, re-enable it via **Plugins → Plugin Management**.
+
+## Testers Needed
+As this plugin is in beta, testers are needed and appreciated! If you run into any controllers or actions that don't work, or other problems, don't hesitate to create an issue. I am a big propnent of accessibility and want this plugin to work perfectly for everyone. Page turners have been a life saver for me. 
 
 ## License
 
