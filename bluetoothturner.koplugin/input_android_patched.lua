@@ -57,10 +57,11 @@ local function genEmuEvent(evtype, code, value, timev, ts)
 end
 
 -- Gamepad D-pad axis support.
-pcall(ffi.cdef, [[
-    float AMotionEvent_getAxisValue(const void* motion_event, int axis, unsigned int pointer_index);
-    int AInputEvent_getSource(const void* event);
-]])
+pcall(ffi.cdef, [[ float AMotionEvent_getAxisValue(const void* motion_event, int axis, unsigned int pointer_index); ]])
+pcall(ffi.cdef, [[ int AInputEvent_getSource(const void* event); ]])
+
+local _dbg = io.open("/sdcard/koreader/btdebug.txt", "w")
+local function dbg(s) if _dbg then _dbg:write(s.."\n") _dbg:flush() end end
 
 local hat_x, hat_y = 0, 0
 
@@ -79,6 +80,7 @@ local function handleHatAxes(motion_event)
         if hat_x ~= 0 then genEmuEvent(C.EV_KEY, hat_x < 0 and 21 or 22, 0, timev) end
         if nx ~= 0 then
             local code = nx < 0 and 21 or 22
+            dbg("GENKEY x code=" .. code)
             genEmuEvent(C.EV_KEY, code, 1, timev)
             if input.capture_callback then
                 local cb = input.capture_callback
@@ -93,6 +95,7 @@ local function handleHatAxes(motion_event)
         if hat_y ~= 0 then genEmuEvent(C.EV_KEY, hat_y < 0 and 19 or 20, 0, timev) end
         if ny ~= 0 then
             local code = ny < 0 and 19 or 20
+            dbg("GENKEY y code=" .. code)
             genEmuEvent(C.EV_KEY, code, 1, timev)
             if input.capture_callback then
                 local cb = input.capture_callback

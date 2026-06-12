@@ -142,6 +142,8 @@ for i = 1, 16 do
     local slot = i
     BluetoothTurner["on" .. SLOT .. slot] = function(self)
         local binding = self._bindings[slot]
+        local f = io.open("/sdcard/koreader/btdebug.txt", "a")
+        if f then f:write("HANDLER slot="..slot.." action="..(binding and binding.action or "nil").."\n") f:close() end
         if binding then executeAction(binding.action, self.ui) end
         return true
     end
