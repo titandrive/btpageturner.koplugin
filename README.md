@@ -32,7 +32,7 @@ It has been verified to work with both [8BitDo Micro](https://www.8bitdo.com/mic
 Open a book and access **Plugins → Configure Bluetooth Controls** to set up your bindings.
 
 - Tap **Add Binding** to create a new binding
-- Tap "tap to set...". The plugin will begin listening for your controller.
+- Tap **"tap to set..."**. The plugin will begin listening for your controller.
 - Press the desired button you want to pair. The plugin will capture its keycode. 
 - Select the action you want it to trigger
 - Use the "x" icon to remove a binding
